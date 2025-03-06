@@ -24,15 +24,18 @@ class StoreProductRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'accredited_balance' => 'nullable|numeric|min:0',
+            'remaining_amount'   => 'nullable|numeric|min:0',
             'product_image'     => 'image|file|max:2048',
-            'name'              => 'required|string',
+            'name' => 'required|string|max:512',
             'slug'              => 'required|unique:products',
             'category_id'       => 'required|integer',
             'unit_id'           => 'required|integer',
-            'quantity'          => 'required|integer',
-            'buying_price'      => 'required|integer',
-            'selling_price'     => 'required|integer',
-            'quantity_alert'    => 'required|integer',
+            'quantity'          => 'required|numeric|min:0',
+            'buying_price'  => 'required|numeric|min:0',
+            'selling_price' => 'required|numeric|min:0',
+            'supplier_id' => 'required|integer|exists:suppliers,id',
+            'quantity_alert' => 'required|numeric|min:0',
             'tax'               => 'nullable|numeric',
             'tax_type'          => 'nullable|integer',
             'notes'             => 'nullable|max:1000',

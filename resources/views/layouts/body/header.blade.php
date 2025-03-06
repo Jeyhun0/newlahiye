@@ -10,6 +10,63 @@
             </a>
         </h1>
 
+        @php
+        $notifications = \App\Models\Notification::all();
+
+        @endphp
+        <div class="dropdown topbar-head-dropdown ms-1 header-item" id="notificationDropdown">
+            <button type="button" class="btn btn-icon btn-topbar btn-ghost-secondary rounded-circle" id="page-header-notifications-dropdown" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false" style="background: #ccc ">
+                <i class='bx bx-bell fs-15'></i>
+                <span class="position-absolute topbar-badge fs-10 translate-middle badge rounded-pill bg-danger">{{$notifications->count()}}<span class="visually-hidden">Yeni</span></span>
+            </button>
+            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0" aria-labelledby="page-header-notifications-dropdown">
+
+                <div class="dropdown-head bg-primary bg-pattern rounded-top mb-3">
+                    <div class="p-3">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h6 class="m-0 fs-16 fw-semibold text-white"> {{ __('Bildirişlər') }} </h6>
+                            </div>
+                            <div class="col-auto dropdown-tabs">
+                                    <span class="badge badge-soft-light fs-13">
+                                       {{$notifications->count()}} {{ __('Yeni') }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div data-simplebar style="max-height: 300px;" class="pe-2">
+
+                    @foreach($notifications as $item)
+                        @php
+                            $data = is_array($item->data) ? $item->data : (is_object($item->data) ? (array) $item->data : json_decode($item->data, true));
+                        @endphp
+                        <div class="text-reset notification-item d-block dropdown-item position-relative">
+                            <div class="d-flex">
+                                <div class="avatar-xs me-3">
+                                    <span class="avatar-title bg-soft-danger text-danger rounded-circle fs-16">
+                                       <i class='bx bx-message-square-dots'></i>
+                                    </span>
+                                </div>
+                                <div class="flex-1">
+                                    <a href="{{ route('notification.index') }}" class="stretched-link">
+                                        <h6 class="mt-0 mb-2 fs-13 lh-base">{{ isset($data['title']) ?
+                                          $data['title'] : '-' }}</h6>
+
+                                    </a>
+
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+
+
+                    <div class="my-3 text-center view-all">
+                        <a href="{{ route('notification.index') }}" class="btn btn-soft-success waves-effect waves-light">
+                            @lang('Show all') <i class="ri-arrow-right-line align-middle"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="navbar-nav flex-row order-md-last">
             <div class="nav-item dropdown">
                 <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Open user menu">

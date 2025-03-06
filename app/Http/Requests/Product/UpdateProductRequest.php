@@ -24,20 +24,25 @@ class UpdateProductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'product_image'     => 'image|file|max:2048',
-            'name'              => 'required|string',
-            'slug'              => [
-                Rule::unique('products')->ignore($this->product)
-            ],
-            'category_id'       => 'required|integer',
-            'unit_id'           => 'required|integer',
-            'quantity'          => 'required|integer',
-            'buying_price'      => 'required|integer',
-            'selling_price'     => 'required|integer',
-            'quantity_alert'    => 'required|integer',
-            'tax'               => 'nullable|numeric',
-            'tax_type'          => 'nullable|integer',
-            'notes'             => 'nullable|max:1000'
+
+            'name'                       => 'required|string|max:255',
+            'slug'                       => ['required', Rule::unique('products')->ignore($this->product)],
+            'code'                       => 'nullable|string|max:255',
+            'category_id'                => 'required|integer|exists:categories,id',
+            'unit_id'                    => 'required|integer|exists:units,id',
+            'quantity'                   => 'required|integer|min:0',
+            'quantity_alert'             => 'required|integer|min:0',
+            'buying_price'               => 'required|numeric|min:0',
+            'selling_price'              => 'required|numeric|min:0',
+            'tax'                        => 'nullable|numeric|min:0',
+            'notes'                      => 'nullable|string|max:1000',
+            'project_estimate_documents' => 'nullable|boolean',
+            'construction_permit'        => 'nullable|boolean',
+            'remaining_amount'           => 'nullable|numeric|min:0',
+            'accredited_balance'         => 'nullable|numeric|min:0',
+            'advance_debt'               => 'nullable|numeric|min:0',
+            'project_completion_estimate'=> 'nullable|numeric|min:0',
+            'estimated_funds_2025'       => 'nullable|numeric|min:0'
         ];
     }
 

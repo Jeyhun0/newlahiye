@@ -31,6 +31,9 @@ class Product extends Model
         'project_estimate_documents',
         'construction_permit',
         'unit_id',
+        'remaining_amount',
+        'supplier_id',
+        'accredited_balance',
         'advance_debt',
         'project_completion_estimate',
         'estimated_funds_2025',
@@ -50,11 +53,14 @@ class Product extends Model
 
     // Şəxsə görə 'slug' istifadə etmək üçün getRouteKeyName metodunu saxlayırıq
 
-    public function customer()
+    public function supplier(): BelongsTo
     {
-        return $this->belongsTo(Customer::class);
+        return $this->belongsTo(Supplier::class);
     }
-
+//    public function getSupplier()
+//    {
+//        return $this->hasOne(Supplier::class, 'id', 'supplier_id');
+//    }
 
     public function getRouteKeyName(): string
     {
@@ -62,6 +68,8 @@ class Product extends Model
     }
 
     // Product modeli ilə əlaqəli Category modeli üçün əlaqə
+
+
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);

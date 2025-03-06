@@ -12,51 +12,60 @@ class ProductImportController extends Controller
 {
     public function create()
     {
-        return view('products.import');
+        return view('contracts.import');
     }
 
     public function store(Request $request)
     {
+        // Validate the file input
         $request->validate([
             'file' => 'required|file|mimes:xls,xlsx',
         ]);
 
         $the_file = $request->file('file');
 
-        try{
+        try {
+            // Load the spreadsheet
             $spreadsheet = IOFactory::load($the_file->getRealPath());
-            $sheet        = $spreadsheet->getActiveSheet();
-            $row_limit    = $sheet->getHighestDataRow();
-            $column_limit = $sheet->getHighestDataColumn();
-            $row_range    = range( 2, $row_limit );
-            $column_range = range( 'J', $column_limit );
-            $startcount = 2;
-            $data = array();
-            foreach ( $row_range as $row ) {
+            $sheet = $spreadsheet->getActiveSheet();
+            $row_limit = $sheet->getHighestDataRow();  // Get the highest row with data
+            $column_limit = $sheet->getHighestDataColumn(); // Get the highest column with data
+            $row_range = range(2, $row_limit); // Start from row 2 to skip headers
+
+            // Loop through each row and get the data
+            $data = [];
+            foreach ($row_range as $row) {
                 $data[] = [
-                    'name'          => $sheet->getCell( 'A' . $row )->getValue(),
-                    'category_id'   => $sheet->getCell( 'B' . $row )->getValue(),
-                    'unit_id'       => $sheet->getCell( 'C' . $row )->getValue(),
-                    'code'          => $sheet->getCell( 'D' . $row )->getValue(),
-                    'quantity'      => $sheet->getCell( 'E' . $row )->getValue(),
-                    'buying_price'  => $sheet->getCell( 'F' . $row )->getValue(),
-                    'selling_price' => $sheet->getCell( 'G' . $row )->getValue(),
-                    'product_image' => $sheet->getCell( 'H' . $row )->getValue(),
+                    'contract_number' => $sheet->getCell('A' . $row)->getValue(),
+                    'contract_date'   => $sheet->getCell('B' . $row)->getValue(),
+                    'contractor_name' => $sheet->getCell('C' . $row)->getValue(),
+                    'project_value'   => $sheet->getCell('D' . $row)->getValue(),
+                    'contract_value'  => $sheet->getCell('E' . $row)->getValue(),
+                    'allocated_funds' => $sheet->getCell('F' . $row)->getValue(),
+                    'paid_amount'     => $sheet->getCell('G' . $row)->getValue(),
+                    'remaining_amount'=> $sheet->getCell('H' . $row)->getValue(),
+                    'accredited_balance' => $sheet->getCell('I' . $row)->getValue(),
+                    'advance_debt'    => $sheet->getCell('J' . $row)->getValue(),
+                    'project_completion_estimate' => $sheet->getCell('K' . $row)->getValue(),
+                    'estimated_funds_2025' => $sheet->getCell('L' . $row)->getValue(),
+                    'work_type'       => $sheet->getCell('M' . $row)->getValue(),
+                    'funding_source'  => $sheet->getCell('N' . $row)->getValue(),
+                    'notes'           => $sheet->getCell('O' . $row)->getValue(),
                 ];
-                $startcount++;
             }
 
-            Product::insert($data);
+            // Insert the data into the Contract model
+            Contract::insert($data);
 
         } catch (Exception $e) {
-            // $error_code = $e->errorInfo[1];
+            // Handle any exceptions that occur
             return redirect()
-                ->route('products.index')
+                ->route('contracts.index')
                 ->with('error', 'There was a problem uploading the data!');
         }
 
         return redirect()
-            ->route('products.index')
-            ->with('success', 'Data product has been imported!');
+            ->route('contracts.index')
+            ->with('success', 'Contracts data has been imported!');
     }
 }

@@ -111,32 +111,32 @@
 
                                         <div class="col-sm-6 col-md-6">
                                             <div class="mb-3">
-                                                <label for="customer_id" class="form-label">
+                                                <label for="supplier_id" class="form-label">
                                                     Podratçı təşkilatın adı <span class="text-danger">*</span>
                                                 </label>
-                                                @if ($customers->count() === 1)
-                                                    <select name="customer_id" id="customer_id"
-                                                            class="form-select @error('customer_id') is-invalid @enderror"
+                                                @if ($suppliers->count() === 1)
+                                                    <select name="supplier_id" id="supplier_id"
+                                                            class="form-select @error('supplier_id') is-invalid @enderror"
                                                             readonly>
-                                                        @foreach ($customers as $customer)
-                                                            <option value="{{ $customer->id }}" selected>
-                                                                {{ $customer->name }}
+                                                        @foreach ($suppliers as $supplier)
+                                                            <option value="{{ $supplier->id }}" selected>
+                                                                {{ $supplier->name }}
                                                             </option>
                                                         @endforeach
                                                     </select>
                                                 @else
-                                                    <select name="customer_id" id="customer_id"
-                                                            class="form-select @error('customer_id') is-invalid @enderror">
+                                                    <select name="supplier_id" id="supplier_id"
+                                                            class="form-select @error('supplier_id') is-invalid @enderror">
                                                         <option selected disabled>Podratçı təşkilatın adı</option>
-                                                        @foreach ($customers as $customer)
-                                                            <option value="{{ $customer->id }}" @if(old('customer_id') == $customer->id) selected @endif>
-                                                                {{ $customer->name }}
+                                                        @foreach ($suppliers as $supplier)
+                                                            <option value="{{ $supplier->id }}" @if(old('supplier_id') == $supplier->id) selected @endif>
+                                                                {{ $supplier->name }}
                                                             </option>
                                                         @endforeach
                                                     </select>
                                                 @endif
 
-                                                @error('customer_id')
+                                                @error('supplier_id')
                                                 <div class="invalid-feedback">
                                                     {{ $message }}
                                                 </div>
