@@ -11,13 +11,12 @@
         </h1>
 
         @php
-        $notifications = \App\Models\Notification::all();
-
+            $notifications = \App\Models\Notification::where('notifiable_id', auth()->id());
         @endphp
         <div class="dropdown topbar-head-dropdown ms-1 header-item" id="notificationDropdown">
             <button type="button" class="btn btn-icon btn-topbar btn-ghost-secondary rounded-circle" id="page-header-notifications-dropdown" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false" style="background: #ccc ">
                 <i class='bx bx-bell fs-15'></i>
-                <span class="position-absolute topbar-badge fs-10 translate-middle badge rounded-pill bg-danger">{{$notifications->count()}}<span class="visually-hidden">Yeni</span></span>
+                <span class="position-absolute topbar-badge fs-10 translate-middle badge rounded-pill bg-danger">{{$notifications->get()->count()}}<span class="visually-hidden">Yeni</span></span>
             </button>
             <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0" aria-labelledby="page-header-notifications-dropdown">
 
@@ -29,14 +28,14 @@
                             </div>
                             <div class="col-auto dropdown-tabs">
                                     <span class="badge badge-soft-light fs-13">
-                                       {{$notifications->count()}} {{ __('Yeni') }}</span>
+                                       {{$notifications->get()->count()}} {{ __('Yeni') }}</span>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div data-simplebar style="max-height: 300px;" class="pe-2">
 
-                    @foreach($notifications as $item)
+                    @foreach($notifications->latest()->take(4)->get() as $item)
                         @php
                             $data = is_array($item->data) ? $item->data : (is_object($item->data) ? (array) $item->data : json_decode($item->data, true));
                         @endphp

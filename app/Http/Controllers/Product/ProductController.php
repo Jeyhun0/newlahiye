@@ -7,6 +7,7 @@ use App\Http\Requests\Product\StoreProductRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
 use App\Models\Category;
 use App\Models\Customer;
+use App\Models\User;
 use Illuminate\Support\Facades\Notification;
 use App\Models\Product;
 use App\Models\Supplier;
@@ -40,7 +41,7 @@ class ProductController extends Controller
      public function store(StoreProductRequest $request)
 
     {
-        $user=Auth::user();
+
         // Validasiya nəticəsində verilən məlumatları alırıq
          $validated = $request->validated();
 
@@ -55,9 +56,16 @@ class ProductController extends Controller
             // Məhsulu yeniləyin və şəkil adını qeyd edin
             $product->update(['product_image' => $filename]);
         }
-
-        Notification::send($user, new GeneralNotification(['title' => 'Yeni məhsul əlavəsi','text' => $user->name. 'tərəfindən yeni məhsul əlavə olundu', ['product_name' => $product->name], 'url' => '/products']));
-
+        $authUser=Auth::user(1);
+        $user = User::find(1);  // Yalnız user 1-ə bildiriş göndəririk
+        if ($user) {
+            Notification::send($user, new GeneralNotification([
+                'title' => 'Məhsul məlumatları yeniləndi',
+                'text' => $authUser->name . ' tərəfindən məhsul məlumatları yeniləndi',
+                'product_name' => $product->name,
+                'url' => '/products'
+            ]));
+        }
         return redirect()->route('products.index')->with('success', 'Product created successfully!');
     }
 
@@ -74,6 +82,7 @@ class ProductController extends Controller
     // Məhsulun məlumatlarını yeniləmək üçün forma
     public function edit(Product $product)
     {
+//        dd(route('products.update', $product->id));
         $categories = Category::all(); // Kateqoriyalar
         $customers = Customer::all(); // Müştərilər
         $units = Unit::all(); // Vahidlər
@@ -82,36 +91,43 @@ class ProductController extends Controller
         return view('products.edit', compact('product', 'categories', 'customers', 'suppliers','units'));
     }
 
-    // Məhsul məlumatlarını yeniləyir
-    public function update(UpdateProductRequest $request, Product $product)
-    {
+//     Məhsul məlumatlarını yeniləyir
+    public function update(UpdateProductRequest $request, $id)
+//    public function update(Request $request, $id)
+{
+//        dd($request->all());
         // Validasiya nəticəsində verilən məlumatları alırıq
         $validated = $request->validated();
+        $product=Product::findOrFail($id);
         $product->update($validated);
 
-        Notification::send($user, new GeneralNotification([
-            'title' => 'Məhsul məlumatları yeniləndi',
-            'text' => $user->name. ' tərəfindən məhsul məlumatları yeniləndi',
-            'product_name' => $product->name,
-            'url' => '/products'
-        ]));
+        $authUser=Auth::user();
+        $authUser = Auth::user();
+        if ($authUser && $authUser->id == 1) {
+            Notification::send($authUser, new GeneralNotification([
+                'title' => 'Məhsul məlumatları yeniləndi',
+                'text' => $authUser->name . ' tərəfindən məhsul məlumatları yeniləndi',
+                'product_name' => $product->name,
+                'url' => '/products'
+            ]));
+        }
 
 
 //        // Şəkil varsa, onu yeniləyin
-//        if ($request->hasFile('product_image')) {
-//            // Köhnə şəkil varsa, onu silin
-//            if ($product->product_image) {
-//                unlink(public_path('storage/products/') . $product->product_image);
-//            }
-//
-//            // Yeni şəkili yükləyin
-//            $file = $request->file('product_image');
-//            $filename = hexdec(uniqid()) . '.' . $file->getClientOriginalExtension();
-//            $file->storeAs('products/', $filename, 'public');
-//
-//            // Məhsulu yeniləyin və yeni şəkil adını qeyd edin
-//            $product->update(['product_image' => $filename]);
+        if ($request->hasFile('product_image')) {
+            // Köhnə şəkil varsa, onu silin
+            if ($product->product_image) {
+                unlink(public_path('storage/products/') . $product->product_image);
+            }
 
+            // Yeni şəkili yükləyin
+            $file = $request->file('product_image');
+            $filename = hexdec(uniqid()) . '.' . $file->getClientOriginalExtension();
+            $file->storeAs('products/', $filename, 'public');
+
+            // Məhsulu yeniləyin və yeni şəkil adını qeyd edin
+            $product->update(['product_image' => $filename]);
+        }
 
         return redirect()->route('products.index')->with('success', 'Product updated successfully!');
     }
@@ -126,13 +142,15 @@ class ProductController extends Controller
 
         // Məhsul məlumatını silirik
         $product->delete();
-        $user = Auth::user();
-        Notification::send($user, new GeneralNotification([
-            'title' => 'Məhsul silindi',
-            'text' => $user->name. ' tərəfindən məhsul silindi',
-            'product_name' => $product->name,
-            'url' => '/products'
-        ]));
+        $user = User::find(1);  // Sadəcə user 1-ə bildiriş göndəririk
+        if ($user) {
+            Notification::send($user, new GeneralNotification([
+                'title' => 'Məhsul silindi',
+                'text' => $user->name . ' tərəfindən məhsul silindi',
+                'product_name' => $product->name,
+                'url' => '/products'
+            ]));
+        }
 
         return redirect()->route('products.index')->with('success', 'Product deleted successfully!');
     }

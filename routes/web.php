@@ -65,6 +65,12 @@ Route::middleware(['auth'])->group(function () {
     Route::post('products/export', [ProductExportController::class, 'export'])->name('products.export');
     Route::get('/products/export', [ProductExportController::class, 'create'])->name('products.export.store');
     Route::resource('/products', ProductController::class);
+//    Route::get('/products', ProductController::class,'index')->name('products.index');
+//    Route::get('/products/create', ProductController::class,'create')->name('products.create');
+//    Route::post('/products/store', ProductController::class,'store')->name('products.store');
+//    Route::get('/products/{id}', ProductController::class,'edit')->name('products.edit');
+//    Route::post('/products/{id}', ProductController::class,'update')->name('products.update');
+
 
     // Route Orders
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');

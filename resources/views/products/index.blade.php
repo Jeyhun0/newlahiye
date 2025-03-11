@@ -16,7 +16,7 @@
                 <!-- Excel ixrac düyməsi -->
                 <div class="mb-3">
                     <a href="{{ route('products.export') }}" class="btn btn-success">
-                        <i class="fas fa-file-excel"></i> Export to Excel
+                        <i class="fas fa-file-excel"></i> Excell Yaradın
                     </a>
                 </div>
 
