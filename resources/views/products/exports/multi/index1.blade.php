@@ -22,6 +22,8 @@
             <th style="background-color: #8DB4E2; color:black; border:1px solid black; vertical-align:middle; width:110px; text-align:center; font-weight:600">2025-ci ilə tələb olunan vəsait</th>
             <th style="background-color: #8DB4E2; color:black; border:1px solid black; vertical-align:middle; width:110px; text-align:center; font-weight:600">İşin növü</th>
             <th style="background-color: #8DB4E2; color:black; border:1px solid black; vertical-align:middle; width:110px; text-align:center; font-weight:600">Vəsaitin mənbəyi</th>
+            <th style="background-color: #8DB4E2; border:1px solid black; text-align:center; font-weight:600">Inspection Form 2</th>
+            <th style="background-color: #8DB4E2; border:1px solid black; text-align:center; font-weight:600">EMI Form 2</th>
             <th style="background-color: #8DB4E2; color:black; border:1px solid black; vertical-align:middle; width:110px; text-align:center; font-weight:600">Qeyd</th>
         </tr>
     </thead>
@@ -64,11 +66,18 @@
             <td style="border:1px solid black; vertical-align:middle; text-align:center;">
                 {{$data->estimated_funds_2025 ?? '-'}}
             </td>
+
             <td style="border:1px solid black; vertical-align:middle; text-align:center;">
                 {{$data->unit ? $data->unit->name : '-'}}
             </td>
             <td style="border:1px solid black; vertical-align:middle; text-align:center;">
                 {{$data->category ? $data->category->name : '-'}}
+            </td>
+            <td style="border:1px solid black; text-align:center;">
+                {{$data->inspection_form_2 ?? '-'}}
+            </td>
+            <td style="border:1px solid black; text-align:center;">
+                {{$data->emi_form_2 ?? '-'}}
             </td>
             <td style="border:1px solid black; vertical-align:middle; text-align:center;">
                 {{$data->notes ?? '-'}}

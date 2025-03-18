@@ -64,9 +64,20 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/products/import', [ProductImportController::class, 'store'])->name('products.import.store');
     Route::post('products/export', [ProductExportController::class, 'export'])->name('products.export');
     Route::get('/products/export', [ProductExportController::class, 'create'])->name('products.export.store');
+//    Route::post('/products/store', ProductController::class,'store')->name('products.store');
+//    Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
+//    Route::get('/products/{product}/', [ProductController::class, 'storeReply'])->name('products.storeReply');
+//    Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');
+//    Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');
+
+
+
     Route::resource('/products', ProductController::class);
+
 //    Route::get('/products', ProductController::class,'index')->name('products.index');
 //    Route::get('/products/create', ProductController::class,'create')->name('products.create');
+//    Route::get('products', [ProductController::class, 'index']);
+//
 //    Route::post('/products/store', ProductController::class,'store')->name('products.store');
 //    Route::get('/products/{id}', ProductController::class,'edit')->name('products.edit');
 //    Route::post('/products/{id}', ProductController::class,'update')->name('products.update');

@@ -37,6 +37,10 @@ class Product extends Model
         'advance_debt',
         'project_completion_estimate',
         'estimated_funds_2025',
+        'product_see_type',
+        'product_see_users',
+        'emi_form_2',
+        'inspection_form_2',
         'created_at',
         'updated_at'
     ];
@@ -48,10 +52,38 @@ class Product extends Model
         'tax_type' => TaxType::class,
         'advance_debt' => 'decimal:2',
         'project_completion_estimate' => 'decimal:2',
-        'estimated_funds_2025' => 'decimal:2'
+        'estimated_funds_2025' => 'decimal:2',
+         'product_see_users' => 'array'  // JSON formatında saxlanacaq
     ];
 
+
+
+
+    public function setProductSeeUsersAttribute($value)
+    {
+        if (is_array($value) && count($value) == 1) {
+            $this->attributes['product_see_users'] = (int) reset($value); // Tək element varsa integer saxla
+        } else {
+            $this->attributes['product_see_users'] = json_encode(array_map('intval', (array) $value)); // Çox element varsa JSON saxla
+        }
+    }
+
+    /**
+     * ✅ Get Product See Users Attribute (Getter)
+     * - Əgər bazada integer kimi saxlanılıbsa, integer kimi qaytarır.
+     * - Əgər JSON formatındadırsa, array kimi qaytarır.
+     */
+    public function getProductSeeUsersAttribute($value)
+    {
+        if (is_numeric($value)) {
+            return (int) $value; // Tək ədəd varsa integer qaytar
+        }
+        return json_decode($value, true) ?? []; // JSON formatındadırsa, array kimi qaytar
+    }
+
     // Şəxsə görə 'slug' istifadə etmək üçün getRouteKeyName metodunu saxlayırıq
+
+
 
     public function supplier(): BelongsTo
     {
@@ -74,6 +106,12 @@ class Product extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    public function replies()
+    {
+        return $this->hasMany(Reply::class);
+    }
+
 
     // Product modeli ilə əlaqəli Unit modeli üçün əlaqə
     public function unit(): BelongsTo

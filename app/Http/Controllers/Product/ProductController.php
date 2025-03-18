@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Product;
 
+
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Product\StoreProductRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
 use App\Models\Category;
 use App\Models\Customer;
+use App\Models\Reply;
 use App\Models\User;
 use Illuminate\Support\Facades\Notification;
 use App\Models\Product;
@@ -17,14 +19,33 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Picqer\Barcode\BarcodeGeneratorHTML;
 
+
 class ProductController extends Controller
 {
     // Məhsulların siyahısını göstərir
     public function index()
     {
-        $products = Product::all(); // Bütün məhsulları alır
+        $userId=Auth::id();
+        $products = Product::where("product_see_type", 0)
+            ->orWhere(function($query) use ($userId) {
+                $query->where("product_see_type", 1)
+                    ->whereJsonContains("product_see_users",(int)$userId);  // Burada JSON içərisində istifadəçi ID-ni yoxlayaq
+            })
+            ->orWhere(function($query) use ($userId) {
+                $query->whereNull("user_id") // user_id boşdursa da göstər
+                ->orWhere("user_id", $userId);
+            })
+            ->get();
+
+
+//        dd($products->pluck('id', 'user_id'));
+
+
+
+//        dd( $products);
         return view('products.index', compact('products'));
     }
+
 
     // Yeni məhsul yaratmaq üçün forma
     public function create()
@@ -33,51 +54,75 @@ class ProductController extends Controller
         $suppliers = Supplier::all(); // Müştərilər
         $units = Unit::all(); // Vahidlər
         $product = Product::all();
+        $users = User::all();
 
-        return view('products.create', compact('categories', 'suppliers', 'units', 'product'));
+
+        return view('products.create', compact('categories', 'suppliers', 'units','users', 'product'));
     }
 
     // Yeni məhsulun yaradılması
      public function store(StoreProductRequest $request)
-
     {
 
-        // Validasiya nəticəsində verilən məlumatları alırıq
-         $validated = $request->validated();
+        $validated = $request->validated();
+        $authUser = Auth::user();
 
-        // Yeni məhsulu yaradın
-         $product = Product::create($validated);
+        // Seçilmiş istifadəçiləri json formatında saxlayırıq
+        $selectedUsers = $request->input('user_ids', []);  // Seçilmiş istifadəçilər
+        $validated['product_see_users'] = count($selectedUsers) == 1 ? (int) $selectedUsers[0] : json_encode($selectedUsers);
 
+        // Məhsul yaradılır
+        $product = Product::create($validated);
+
+        // Məhsul şəkili varsa, onu yükləyirik
         if ($request->hasFile('product_image')) {
             $file = $request->file('product_image');
             $filename = hexdec(uniqid()) . '.' . $file->getClientOriginalExtension();
             $file->storeAs('products/', $filename, 'public');
-
-            // Məhsulu yeniləyin və şəkil adını qeyd edin
             $product->update(['product_image' => $filename]);
         }
-        $authUser=Auth::user(1);
-        $user = User::find(1);  // Yalnız user 1-ə bildiriş göndəririk
-        if ($user) {
-            Notification::send($user, new GeneralNotification([
-                'title' => 'Məhsul məlumatları yeniləndi',
-                'text' => $authUser->name . ' tərəfindən məhsul məlumatları yeniləndi',
+
+        // Seçilmiş istifadəçilərə bildiriş göndəririk
+        if ($authUser && $authUser->id == 1 && !empty($selectedUsers)) {
+            // Seçilmiş istifadəçilərə bildiriş göndəririk
+            Notification::send(User::whereIn('id', $selectedUsers)->get(), new GeneralNotification([
+                'title' => 'Yeni məhsul yaradıldı',
+                'text' => 'Sizin üçün yeni bir məhsul yaradıldı: ' . $product->name,
                 'product_name' => $product->name,
-                'url' => '/products'
+                'url' => '/products/' . $product->id
             ]));
         }
-        return redirect()->route('products.index')->with('success', 'Product created successfully!');
+        return redirect()->route('products.index')->with('success', 'Məhsul uğurla yaradıldı!');
     }
 
     // Məhsulun ətraflı məlumatını göstərir
     public function show(Product $product)
     {
-        // Məhsul üçün barkod yaradılır
-        $generator = new BarcodeGeneratorHTML();
-        $barcode = $generator->getBarcode($product->code, $generator::TYPE_CODE_128);
+        $replies = $product->replies()->with('user', 'children.user')->get();
 
-        return view('products.show', compact('product', 'barcode'));
+
+        return view('products.show', compact('product','replies'));
     }
+    public function storeReply(Request $request, Product $product)
+    {
+        // Burada reply-ni alıb işləyin
+        $validated = $request->validate([
+            'reply' => 'required|string|max:1000',
+        ]);
+
+        // Şərh əlavə etmək üçün kod
+        $product->replies()->create([
+            'content' => $validated['reply'],
+            'user_id' => auth()->id(),
+            'product_id' => $product->id,
+            'parent_id' => $request->input('parent_id')
+        ]);
+
+        return redirect()->route('products.show', $product->id)->with('success', 'Cavab uğurla əlavə edildi.');
+    }
+// Cavabın altına cavab əlavə etmək (storeReply) metodu
+
+
 
     // Məhsulun məlumatlarını yeniləmək üçün forma
     public function edit(Product $product)
@@ -154,4 +199,6 @@ class ProductController extends Controller
 
         return redirect()->route('products.index')->with('success', 'Product deleted successfully!');
     }
+
+
 }

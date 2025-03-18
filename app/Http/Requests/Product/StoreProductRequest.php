@@ -42,6 +42,13 @@ class StoreProductRequest extends FormRequest
             'advance_debt'      => 'nullable|numeric|min:0',
             'project_completion_estimate' => 'nullable|numeric|min:0',
             'estimated_funds_2025' => 'nullable|numeric|min:0',
+            'product_see_type'   => 'required|in:0,1',  // Yeni validasiya əlavə et
+            'users'              => 'nullable|array', // Seçilmiş istifadəçilərin ID-ləri
+            'users.*'            => 'nullable|integer|exists:users,id',  // İstifadəçi ID-ləri yoxlanılır
+            'user_ids' => 'nullable|array',  // İstifadəçi ID-lərini array olaraq qəbul edirik
+            'user_ids.*' => 'nullable|integer|exists:users,id',  // Hər bir ID-nin mövcud olmasını yoxlayırıq
+            'inspection_form_2' => 'nullable|numeric|min:0',
+            'emi_form_2' => 'nullable|numeric|min:0'
         ];
     }
 
@@ -59,6 +66,8 @@ class StoreProductRequest extends FormRequest
             'advance_debt' => $this->advance_debt ?? 0,
             'project_completion_estimate' => $this->project_completion_estimate ?? 0,
             'estimated_funds_2025' => $this->estimated_funds_2025 ?? 0,
+            'product_see_users' => is_array($this->users) ? array_map('intval', $this->users) : (int) $this->users,
+            'users' => $this->users ?? [], // **İstifadəçiləri array kimi saxla (boş gəlməsin)**
         ]);
     }
 

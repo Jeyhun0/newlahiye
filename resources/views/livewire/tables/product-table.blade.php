@@ -12,7 +12,10 @@
                     <x-icon.vertical-dots/>
                 </a>
                 <div class="dropdown-menu dropdown-menu-end" style="">
-                    <a href="{{ route('products.create') }}" class="dropdown-item">
+                   @can("product-create")
+                       <x-icon.plus/>
+                  <a href="{{ route('products.create') }}" class="dropdown-item">
+                      @endcan
                         <x-icon.plus/>
                         {{ __('Create Product') }}
                     </a>
@@ -108,10 +111,21 @@
                     <td class="align-middle text-center">
                         {{ $product->quantity }}
                     </td>
+                    <td>
+                        {{ collect($product->product_see_users)->map(fn($id) => (int) $id)->implode(', ') }}
+                    </td>
+
+
                     <td class="align-middle text-center" style="width: 10%">
                         <x-button.show class="btn-icon" route="{{ route('products.show', $product) }}"/>
+                        @can("product-edit")
                         <x-button.edit class="btn-icon" route="{{ route('products.edit', $product) }}"/>
+                        @endcan
+                        @can("product-delete")
                         <x-button.delete class="btn-icon" route="{{ route('products.destroy', $product) }}"/>
+                        @endcan
+
+
                     </td>
                 </tr>
             @empty

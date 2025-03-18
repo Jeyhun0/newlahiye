@@ -49,4 +49,14 @@ class GeneralNotification extends Notification
     {
         return $this->data;
     }
+
+    public function toDatabase(object $notifiable)
+    {
+        return [
+            'title' => $this->data['title'],
+            'text' => $this->data['text'],
+            'product_name' => $this->data['product_name'], // Bu cür olmalı
+            'url' => $this->data['url'],
+        ];
+    }
 }

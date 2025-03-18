@@ -1,6 +1,7 @@
 @extends('layouts.tabler')
 
 @section('content')
+
     <div class="page-header d-print-none">
         <div class="container-xl">
             <div class="row g-2 align-items-center mb-3">
@@ -211,6 +212,23 @@
                                                 <label for="advance_debt" class="block text-gray-700 font-semibold mb-2">Avans borcu</label>
                                                 <input type="text" id="advance_debt" name="advance_debt" placeholder="0" value="{{ old('advance_debt') }}" class="w-full p-3 border rounded-md focus:ring focus:ring-blue-300"/>
                                             </div>
+                                            <div class="p-4 border rounded-md shadow-sm">
+                                                <label for="inspection_form_2" class="block text-gray-700 font-semibold mb-2">
+                                                    Yoxlanilan Forma 2
+                                                </label>
+                                                <input type="number" id="inspection_form_2" name="inspection_form_2" placeholder="Enter value"
+                                                       value="{{ old('inspection_form_2') }}"
+                                                       class="w-full p-3 border rounded-md focus:ring focus:ring-blue-300"/>
+                                            </div>
+
+                                            <div class="p-4 border rounded-md shadow-sm">
+                                                <label for="emi_form_2" class="block text-gray-700 font-semibold mb-2">
+                                                    EMİ də olan forma 2 sənədi
+                                                </label>
+                                                <input type="number" id="emi_form_2" name="emi_form_2" placeholder="Enter value"
+                                                       value="{{ old('emi_form_2') }}"
+                                                       class="w-full p-3 border rounded-md focus:ring focus:ring-blue-300"/>
+                                            </div>
 
                                             <div class="p-4 border rounded-md shadow-sm">
                                                 <label for="project_completion_estimate" class="block text-gray-700 font-semibold mb-2">Layihənin bitməsi üçün tələb olunan ehtimal vəsait</label>
@@ -237,6 +255,27 @@
                                                 <option value="Yes" {{ old('construction_permit') == 'Yes' ? 'selected' : '' }}>Yes</option>
                                                 <option value="No" {{ old('construction_permit') == 'No' ? 'selected' : '' }}>No</option>
                                             </select>
+                                        </div>
+                                        <div class="row mt-3">
+                                            <div class="col-md-6">
+                                                <label for="product_see_type">Məhsul Görünüş Tipi</label>
+                                                <select name="product_see_type" id="product_see_type" class="form-select">
+                                                    <option value="0">Hamını göstər</option>
+                                                    <option value="1">Seçilmiş istifadəçilərə göstər</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="col-md-6" id="user_select" style="display: none;">
+
+                                                <label for="user_ids">İstifadəçilər:</label>
+                                                <select name="user_ids[]" class="form-control" id="user_ids" onchange="showSelectedUser()">
+                                                    @foreach($users as $user)
+                                                        <option value="{{ $user->id }}" {{ in_array($user->id, old('user_ids', [])) ? 'selected' : '' }}>
+                                                            {{ $user->name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
                                         </div>
 
                                         <div class="col-md-12">
@@ -269,6 +308,38 @@
             </div>
         </div>
     </div>
+    <script>
+        // Seçim dəyişildikdə yalnız seçilən istifadəçini göstər
+        function showSelectedUser() {
+            var selectedUserId = document.getElementById('user_ids').value;
+            var allOptions = document.getElementById('user_ids').options;
+
+            for (var i = 0; i < allOptions.length; i++) {
+                var option = allOptions[i];
+                if (option.value != selectedUserId) {
+                    option.style.display = 'none'; // Seçilən istifadəçi xaric, hamısını gizlət
+                } else {
+                    option.style.display = 'block'; // Seçilən istifadəçi görünür
+                }
+            }
+        }
+
+        // Select seçim dəyişildikdə göstərmək
+        document.getElementById('product_see_type').addEventListener('change', function () {
+            var userSelectDiv = document.getElementById('user_select');
+            if (this.value == '1') {
+                userSelectDiv.style.display = 'block';  // Seçilmiş istifadəçiləri göstər
+            } else {
+                userSelectDiv.style.display = 'none';   // "Hamını göstər" seçildikdə istifadəçilər seçimi gizlensin
+            }
+        });
+
+        // İlk yükləmə zamanı doğru vəziyyəti göstərmək
+        if (document.getElementById('   product_see_type').value == '1') {
+            document.getElementById('user_select').style.display = 'block';
+        }
+    </script>
+
 @endsection
 
 @pushonce('page-scripts')

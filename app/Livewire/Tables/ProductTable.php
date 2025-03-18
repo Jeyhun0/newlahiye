@@ -3,6 +3,7 @@
 namespace App\Livewire\Tables;
 
 use App\Models\Product;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -32,12 +33,18 @@ class ProductTable extends Component
 
     public function render()
     {
+        $userId=Auth::id();
+        $products = Product::where("product_see_type", 0)
+            ->orWhere(function($query) use ($userId) {
+                $query->where("product_see_type", 1)
+                    ->whereJsonContains("product_see_users", $userId);  // Burada JSON içərisində istifadəçi ID-ni yoxlayaq
+            })
+            ->with(['category', 'unit'])
+            ->search($this->search)
+            ->orderBy($this->sortField, $this->sortAsc ? 'asc' : 'desc')
+            ->paginate($this->perPage);
         return view('livewire.tables.product-table', [
-            'products' => Product::query()
-                ->with(['category', 'unit'])
-                ->search($this->search)
-                ->orderBy($this->sortField, $this->sortAsc ? 'asc' : 'desc')
-                ->paginate($this->perPage),
-        ]);
+            'products' => $products
+            ]);
     }
 }
